@@ -55,16 +55,22 @@ export const useForm = <T extends string, TData extends object>({
             const validator = validators[name as keyof TData];
             if (validator) {
                 const error = validator(value);
-                const validatorSpan = formRef.current?.querySelector(`[data-validator-for="${name}"]`);
+                const validatorEl = formRef.current?.querySelector(`[data-validator-for="${name}"]`);
+                
                 if (error) {
                     reactiveForm.current.setErrors({ [name]: error } as Record<keyof TData, string>);
                     
-                    if (validatorSpan) {
-                        validatorSpan.innerHTML = error;
+                    if (validatorEl) {
+                        validatorEl.innerHTML = error;
                     }
                 } else {
-                    if (validatorSpan) {
-                        validatorSpan.innerHTML = "";
+                    const formErrors = formDom.read<T, TData>(formName).errors.values;
+                    const currentError = formErrors[name as keyof TData];
+                    if (currentError) {
+                        reactiveForm.current.setErrors({ [name]: "" } as Record<keyof TData, string>);
+                    }
+                    if (validatorEl) {
+                        validatorEl.innerHTML = "";
                     }
                 }
             }
