@@ -1,6 +1,5 @@
 {
   "name": "reactive-forms",
-  "private": true,
   "version": "0.0.1",
   "description": "A simple reactive form library for React",
   "author": "John Robinson <johnrob1880@gmail.com>",
