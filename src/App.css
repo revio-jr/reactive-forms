@@ -40,3 +40,14 @@
 .read-the-docs {
   color: #888;
 }
+
+[data-empty='true'],
+[data-invalid='true'] {
+  visibility: hidden;
+}
+[data-state='pending'] {
+  color: #888;
+}
+[data-state='submitted'] {
+  color: green;
+}

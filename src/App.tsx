@@ -3,7 +3,7 @@ import './App.css'
 import { useForm } from './use-form'
 import { useFormReset } from './use-form-reset';
 import { useFormState } from './use-form-state';
-import { useFormValues } from './use-form-values';
+import { useFormTemplate } from './use-form-template';
 
 const defaultFormValues = { name: "John", phone: "555-5555", email: "john@example.com" };
 
@@ -15,25 +15,29 @@ function App() {
     console.log(Values);
   }, validators: {
     name: (value) => {
-      console.log('validating name', value);
       if (!value) return "Name is required";
       return undefined;
     },
     phone: (value) => {
-      console.log('validating phone', value);
       if (!value) return "Phone is required";
       return undefined;
     },
     email: (value) => {
-      console.log('validating email', value);
       if (!value) return "Email is required";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Invalid email";
       return undefined;
     }
   }})
 
-  const values = useFormValues({ formName: "myForm", defaultValue: defaultFormValues});
   const state = useFormState({ formName: "myForm", defaultValue: defaultFormValues});
   const reset = useFormReset({ formName: "myForm", defaultValue: defaultFormValues});
+
+  const templateRef = useFormTemplate({ formName: "myForm", defaultValue: defaultFormValues, transform: (key, value, isSubmitted) => {
+    if (key === "phone") return `<div>Phone: ${value}</div>`;
+    if (key === "email") return `<div>Email: ${value}</div>`;
+    if (key === "name") return isSubmitted ? `Thanks ${value}` : `Hello ${value}!`;
+    return String(value);
+  }});
 
   useEffect(() => {
     renderCount.current++; 
@@ -60,9 +64,14 @@ function App() {
         <p data-validator-for="email" />
       </div>  
       <button disabled={state?.isSubmitted} type="submit">Submit</button>
+      <button type="button" style={{marginLeft: "10px"}} onClick={() => reset()}>Reset</button>
     </form>
-    <div style={{ textAlign: "left", color: state?.isSubmitted ? "green": "grey"}}>{values.name} {values.phone} { values.email} {state?.isSubmitted ? "✅" : ""}</div>
-    <button disabled={!state?.isSubmitted} onClick={() => reset()}>Reset</button>
+    
+    <div ref={templateRef}>
+      <h5 data-bind="name" />
+      <p data-bind="phone" />
+      <p data-bind="email" />
+    </div>
     </>
   )
 }
