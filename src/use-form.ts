@@ -12,13 +12,12 @@ export const useForm = <T extends string, TData extends object>({
     formName: T;
     defaultValue: TData;
     onSubmit: (values: TData) => void;
-    validators?: Record<keyof TData, (value: any) => string | undefined>;
+    validators?: Partial<Record<keyof TData, (value: any) => string | undefined>>;
 }) => {
     const formRef = useRef<HTMLFormElement>(null);
     const reactiveForm = useRef<ReactiveForm<TData> | undefined>(undefined);
 
     const handleSubmit = useCallback((e: SubmitEvent) => {
-        console.log('submit', e);
         e.preventDefault();
         e.stopPropagation();
         if (!reactiveForm.current) return;
@@ -29,13 +28,12 @@ export const useForm = <T extends string, TData extends object>({
             let hasErrors = false;
             Object.keys(validators).forEach(key => {
                 const value = values.values[key as keyof TData];
-                const error = validators[key as keyof TData](value);
+                const error = validators ? (validators as any)[key as keyof TData](value) : undefined;
                 if (error) {
                     hasErrors = true;
                     reactiveForm.current!.setErrors({ [key]: error } as Record<keyof TData, string>);
                 }
             });
-            console.log('hasErrors', hasErrors, validators);
             if (hasErrors) return;
         }
 
